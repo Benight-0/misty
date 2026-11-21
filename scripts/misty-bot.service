@@ -1,0 +1,43 @@
+[Unit]
+Description=Misty personal Discord bot
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/misty-bot/discord-token
+StartLimitIntervalSec=300
+StartLimitBurst=6
+
+[Service]
+Type=simple
+User=misty-bot
+Group=misty-bot
+WorkingDirectory=/opt/misty-bot
+ExecStart=/opt/misty-bot/bin/node --max-old-space-size=80 --disable-warning=ExperimentalWarning /opt/misty-bot/scripts/misty-discord-bot.mjs
+Environment=MISTY_BOT_MODEL=gpt-6.1-sol
+Environment=MISTY_LAPTOP_REVIEW=off
+Environment=NODE_ENV=production
+LoadCredential=discord-token:/etc/misty-bot/discord-token
+LoadCredential=openai-key:/etc/archival/openai-key
+StateDirectory=misty-bot
+StateDirectoryMode=0700
+UMask=0077
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=105
+MemoryHigh=120M
+MemoryMax=170M
+CPUQuota=35%
+TasksMax=40
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+InaccessiblePaths=/etc/archival /var/lib/archival
+
+[Install]
+WantedBy=multi-user.target

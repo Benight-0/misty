@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Misty.Overlay</AssemblyName>
+    <RootNamespace>Misty.Overlay</RootNamespace>
+    <ApplicationIcon>Assets\misty-avatar.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Speech" Version="9.0.0" />
+    <PackageReference Include="Vosk" Version="0.3.38" />
+    <PackageReference Include="Whisper.net" Version="1.9.1" />
+    <PackageReference Include="Whisper.net.Runtime" Version="1.9.1" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="Markdig" Version="1.3.2" />
+    <PackageReference Include="Slions.VirtualDesktop" Version="6.9.2" />
+    <Resource Include="Assets\misty-avatar.png" />
+    <Resource Include="Assets\notification-ping.wav" />
+    <Resource Include="Assets\Fonts\**\*.ttf" />
+    <Content Include="Assets\Fonts\**\OFL.txt" CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
+  </ItemGroup>
+  <Target Name="MistyWhisperNativeSidecars" BeforeTargets="GenerateSingleFileBundle">
+    <ItemGroup>
+      <ResolvedFileToPublish Update="@(ResolvedFileToPublish)" Condition="$([System.String]::Copy('%(ResolvedFileToPublish.Identity)').Contains('whisper.net.runtime'))">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+  <Target Name="MistyCopyWhisperCpuRuntime" AfterTargets="Publish" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+    <ItemGroup>
+      <MistyWhisperNative Include="$(NuGetPackageRoot)whisper.net.runtime\1.9.1\build\win-x64\*.dll" />
+    </ItemGroup>
+    <MakeDir Directories="$(PublishDir)runtimes\win-x64" />
+    <Copy SourceFiles="@(MistyWhisperNative)" DestinationFolder="$(PublishDir)runtimes\win-x64" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

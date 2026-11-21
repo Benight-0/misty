@@ -1,0 +1,4 @@
+# Installed at /etc/codex/requirements.toml on Misty's VM.
+# Native Codex tools run without a PreToolUse review hook.
+[features]
+hooks = false

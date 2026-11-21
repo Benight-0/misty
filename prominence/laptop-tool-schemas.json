@@ -1,0 +1,371 @@
+[
+  {
+    "name": "laptop_read_files",
+    "description": "Read the content of text or image files at the provided absolute paths, or return only an inclusive one-based line range when start_line/end_line are provided on the same file entry as its path. When you already know multiple files you need, read them together in one call, and call this tool in the same response as other independent tool calls. Each read returns at most 2000 lines / ~47k characters; longer files report their total line count, page through them with start_line/end_line on that file's entry. Binary files that are not image and large files are not supported. Returns file contents or error messages for each path.  Executes on the paired Windows laptop in an existing owner work task. Never use for personal-account messaging or credential access.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "files": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "The absolute path of a text file to read content from"
+              },
+              "start_line": {
+                "description": "Optional one-based starting line number to read from; use null or omit for the start of the file",
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "end_line": {
+                "description": "Optional one-based ending line number to read through; use null or omit to read to the end of the file or the read cap, whichever comes first",
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "path"
+            ],
+            "additionalProperties": false,
+            "description": "A file read request with optional inclusive one-based line bounds. Always include path; start_line/end_line must be on the same object as the path they apply to, never in a separate array element"
+          },
+          "description": "Array of file read requests; each element is one file and must include path. Omit start_line/end_line or set them to null to read from the start; provide integers on the same object as the path to return only that inclusive one-based line range — never emit a range as its own array element. Reads are capped, so page through long files with start_line/end_line. Prefer this tool over running terminal command to get file content for better performance and reliability."
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Existing laptop_task taskId"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "Stable UUID for this exact operation; use laptop_result after timeout"
+        }
+      },
+      "required": [
+        "files",
+        "task_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "laptop_search_codebase",
+    "description": "Perform regex pattern searches across the codebase. Supports multiple parallel searches. When several search patterns could be useful and do not depend on each other, run them together in one call, and call this tool in the same response as other independent tool calls. Use for finding code patterns, function definitions, class names, imports, etc. Output beyond ~48k characters per query is middle-truncated; narrow patterns beat broad ones. Executes on the paired Windows laptop in an existing owner work task. Never use for personal-account messaging or credential access.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "queries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of regex search queries to execute"
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Existing laptop_task taskId"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "Stable UUID for this exact operation; use laptop_result after timeout"
+        }
+      },
+      "required": [
+        "queries",
+        "task_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "laptop_run_commands",
+    "description": "Run non-interactive shell commands from the root of the workspace in Windows environment. Use for listing files, checking git status, running builds, executing tests, etc. Commands must be non-interactive. Commands that require follow-up input like pagers should be skipped or used with supported flags/env (e.g. git --no-pager, --non-interactive) to bypass the interaction steps. Output beyond ~48k characters is middle-truncated (start and end preserved); filter output when you need specific sections. Commands run through Windows PowerShell (powershell.exe); quote paths and arguments for powershell.exe and use ';' to sequence commands. Write commands directly; do not wrap them in another powershell.exe -Command invocation. PowerShell escapes with a backtick (`), not a backslash: inside double quotes, \\\" ends the string. Put literal paths in single quotes. Use cmdlets such as Remove-Item -LiteralPath instead of cmd /c; cmd re-parses the quotes, and a mis-quoted path can become extra targets such as the drive root. Before a recursive or forced delete, confirm the exact target, for example with -WhatIf. Only start another shell when you intentionally need a different shell or a separate process. Include multiple commands in the same call when they are independent and safe to run concurrently. When independent reads, searches, or edits are also needed, call those tools in the same response. Executes on the paired Windows laptop in an existing owner work task. Never use for personal-account messaging or credential access.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "commands": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "The non-interactive shell command to execute - MUST keep input short and concise (within 12000 characters) to avoid timeouts."
+          },
+          "description": "Array of complete shell command strings to execute."
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Existing laptop_task taskId"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "Stable UUID for this exact operation; use laptop_result after timeout"
+        }
+      },
+      "required": [
+        "commands",
+        "task_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "laptop_fetch_web_content",
+    "description": "Fetch content from URLs and analyze them using the provided prompts. Use for retrieving documentation, API references, or any web content. Each request includes a URL and a prompt describing what information to extract. Fetch independent URLs together in one call, and call this tool in the same response as other independent tool calls. Executes on the paired Windows laptop in an existing owner work task. Never use for personal-account messaging or credential access.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "The URL to fetch"
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 2,
+                "description": "Analysis prompt for the fetched content"
+              }
+            },
+            "required": [
+              "url",
+              "prompt"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Array of the URLs for the web fetch requests"
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Existing laptop_task taskId"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "Stable UUID for this exact operation; use laptop_result after timeout"
+        }
+      },
+      "required": [
+        "requests",
+        "task_id"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "laptop_apply_patch",
+    "description": "Use `apply_patch` to edit files with the canonical freeform patch grammar. Pass the patch text directly as the `input` string. Prefer the exact format below:\n\n*** Begin Patch\n*** Update File: path/to/file.ts\n@@ optional section marker\n [context before]\n-[old line]\n+[new line]\n [context after]\n*** End Patch\n\nSupported actions:\n- `*** Add File: <path>`\n- `*** Update File: <path>`\n- `*** Delete File: <path>`\n- optional `*** Move to: <new path>` immediately after an Update File header\n\nRules:\n- In an Add File section, every file-content line must start with `+`.\n- In an Update section, use context lines plus `-` and `+` lines to describe the change.\n- Use `@@` markers when extra context is needed to disambiguate repeated code blocks.\n- Do not use line numbers; this format is context-based.\n- Prefer sending the patch body directly. Legacy shell wrappers such as `%%bash` and `apply_patch <<\"EOF\"` are accepted for compatibility but are not preferred.\n\nExample:\n\n*** Begin Patch\n*** Update File: src/page.tsx\n@@\n   return (\n     <div>\n       <button onClick={() => console.log(\"clicked\")}>Click me</button>\n+      <button onClick={() => console.log(\"cancel clicked\")}>Cancel</button>\n     </div>\n   );\n }\n*** End Patch Executes on the paired Windows laptop in an existing owner work task. Never use for personal-account messaging or credential access.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The freeform apply_patch payload in the canonical patch grammar (e.g *** Begin Patch, *** Update File:, @@, and *** End Patch)."
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Existing laptop_task taskId"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "Stable UUID for this exact operation; use laptop_result after timeout"
+        },
+        "expectedHashes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": "Preimage SHA-256 for every changed path; null for a new file. Read first."
+        }
+      },
+      "required": [
+        "input",
+        "task_id"
+      ],
+      "additionalProperties": false,
+      "description": "Modify or create a text file by applying patches using the canonical apply_patch diff grammar. Prefer sending the patch body directly rather than wrapping it in shell syntax. IMPORTANT: large patches can time out, so use small chunks and multiple calls when possible."
+    }
+  },
+  {
+    "name": "laptop_editor",
+    "description": "An editor for controlled filesystem edits on the text file at the provided path. Provide `insert_line` to insert `new_text` at a specific line number. Otherwise, the tool replaces `old_text` with `new_text`, or creates the file with `new_text` if file does not exist. Use this tool for making small, precise edits to existing files or creating new files over shell commands. If several edits to different files or non-overlapping regions are already known, emit multiple editor tool calls in the same response instead of serializing them across turns. Executes on the paired Windows laptop in an existing owner work task. Never use for personal-account messaging or credential access.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The absolute path for the action to be performed on"
+        },
+        "old_text": {
+          "description": "Exact text to replace (must match exactly once). Omit this when creating a missing file or inserting via insert_line. Keep this at or below 6000 characters when possible; larger payloads should be split across multiple tool calls to avoid timeouts.",
+          "type": "string"
+        },
+        "new_text": {
+          "type": "string",
+          "description": "The new content to write when creating a missing file, the replacement text for edits, or the inserted text when insert_line is provided. Keep this at or below 6000 characters when possible; for large edits, use multiple calls with small chunks of old_text and new_text to iteratively edit the file."
+        },
+        "insert_line": {
+          "description": "Optional positive one-based boundary line. When provided, the tool inserts new_text before that line instead of performing a replacement edit; use line_count + 1 to append at EOF.",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "task_id": {
+          "type": "string",
+          "description": "Existing laptop_task taskId"
+        },
+        "operation_id": {
+          "type": "string",
+          "description": "Stable UUID for this exact operation; use laptop_result after timeout"
+        },
+        "expectedHashes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "description": "Preimage SHA-256 for every changed path; null for a new file. Read first."
+        }
+      },
+      "required": [
+        "path",
+        "new_text",
+        "task_id"
+      ],
+      "additionalProperties": false,
+      "description": "Edit a text file by replacing old_text with new_text, create the file with new_text if it does not exist, or insert new_text at insert_line when insert_line is provided. Prefer using this tool for file edits over shell commands. IMPORTANT: large edits can time out, so use small chunks and multiple calls when possible."
+    }
+  },
+  {
+    "name": "laptop_status",
+    "description": "Private paired laptop status, enabled workspaces, task and operation receipts. No activity contents.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "laptop_result",
+    "description": "Read an existing durable tool receipt; never retry a write or command blindly.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  },
+  {
+    "name": "laptop_task",
+    "description": "Start or pause/resume/cancel ONLY current owner-approved laptop work. No workflow authorization. write/commands default false. Control uses action=control and action_name.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "start",
+            "control"
+          ]
+        },
+        "objective": {
+          "type": "string"
+        },
+        "workspace": {
+          "type": "string"
+        },
+        "write": {
+          "type": "boolean"
+        },
+        "commands": {
+          "type": "boolean"
+        },
+        "location": {"type":"string","enum":["laptop","vm"]},
+        "browserAct": {"type":"boolean"},
+        "desktopAct": {"type":"boolean"},
+        "taskId": {
+          "type": "string"
+        },
+        "action_name": {
+          "type": "string",
+          "enum": [
+            "pause",
+            "resume",
+            "cancel"
+          ]
+        }
+      },
+      "required": [
+        "action"
+      ]
+    }
+  },
+  {
+    "name":"laptop_session",
+    "description":"Open, inspect, hand off, reclaim or cancel a durable browser/desktop session. A specialist needs a verified parent handoff; child grants may only narrow the parent's scope.",
+    "inputSchema":{"type":"object","properties":{
+      "action":{"type":"string","enum":["open","status","assigned","handoff","reclaim","cancel"]},
+      "task_id":{"type":"string"},"session_id":{"type":"string"},
+      "kind":{"type":"string","enum":["browser","desktop"]},
+      "backend":{"type":"string","enum":["chrome","playwright","hcu"]},
+      "target":{"type":"string"},"child_agent_task_id":{"type":"string"},
+      "grant":{"type":"object","properties":{"act":{"type":"boolean"},"maxActions":{"type":"integer","minimum":1,"maximum":8},"hosts":{"type":"array","items":{"type":"string"}},"apps":{"type":"array","items":{"type":"string"}}},"additionalProperties":false}
+    },"required":["action"],"additionalProperties":false}
+  },
+  {
+    "name":"laptop_browser_inspect",
+    "description":"Inspect the assigned Chrome tab or isolated VM Playwright page. tabs, page, accessibility nodes or bounded screenshot. Does not send input.",
+    "inputSchema":{"type":"object","properties":{"task_id":{"type":"string"},"session_id":{"type":"string"},"operation_id":{"type":"string"},"view":{"type":"string","enum":["tabs","page","ax","screenshot"]}},"required":["task_id","session_id","view"],"additionalProperties":false}
+  },
+  {
+    "name":"laptop_browser_run",
+    "description":"Run 1 to 8 bounded actions in the assigned tab; read back the page and retain the receipt. A timeout is unknown, so inspect the existing operation ID before acting again. Personal-account sends use the exact preview approval sender.",
+    "inputSchema":{"type":"object","properties":{"task_id":{"type":"string"},"session_id":{"type":"string"},"operation_id":{"type":"string"},"actions":{"type":"array","minItems":1,"maxItems":8,"items":{"type":"object","properties":{"type":{"type":"string","enum":["new_tab","navigate","click","type","key","scroll","wait"]},"url":{"type":"string"},"x":{"type":"number"},"y":{"type":"number"},"backendNodeId":{"type":"integer"},"text":{"type":"string"},"key":{"type":"string"},"dy":{"type":"number"},"dx":{"type":"number"},"ms":{"type":"integer"}},"required":["type"],"additionalProperties":false}}},"required":["task_id","session_id","actions"],"additionalProperties":false}
+  },
+  {
+    "name":"laptop_desktop_ax",
+    "description":"Use persistent HCU accessibility refs to list, observe, find or act on native windows in the logged-in Windows session. Mutations need an action grant and app target.",
+    "inputSchema":{"type":"object","properties":{"task_id":{"type":"string"},"session_id":{"type":"string"},"operation_id":{"type":"string"},"mode":{"type":"string","enum":["apps","observe","find","act"]},"app":{"type":"string"},"window_ref":{"type":"string"},"query":{"type":"object"},"actions":{"type":"array","maxItems":8,"items":{"type":"object"}},"observe":{"type":"string"},"scope":{"type":"string"}},"required":["task_id","session_id","mode"],"additionalProperties":false}
+  },
+  {
+    "name":"laptop_desktop_gui",
+    "description":"Use HCU screenshot, zoom and short input batches on the shared Windows desktop focus lock. Browser and messaging windows use their dedicated route.",
+    "inputSchema":{"type":"object","properties":{"task_id":{"type":"string"},"session_id":{"type":"string"},"operation_id":{"type":"string"},"actions":{"type":"array","minItems":1,"maxItems":8,"items":{"type":"object"}},"settle_ms":{"type":"integer","minimum":0,"maximum":3000}},"required":["task_id","session_id","actions"],"additionalProperties":false}
+  }
+]

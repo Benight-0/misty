@@ -1,0 +1,31 @@
+// Actual model/tool decisions with fictional archive fixtures and in-memory state.
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {BotStore} from '../app/discord-bot.mjs';
+import {MistyRelay} from '../app/misty-relay.mjs';
+import {ArchiveTools} from '../app/misty-archive.mjs';
+import {OpenAIAnalysis} from '../app/openai-analysis.mjs';
+const production=new DatabaseSync('/var/lib/misty-bot/chat.sqlite',{readOnly:true});
+const profile=JSON.parse(production.prepare("SELECT value FROM bot_settings WHERE key='owner_voice'").get().value);production.close();
+const store=new BotStore(':memory:');store.set('owner_voice',profile);
+const events=[],delivered=[],usage=[],id='discord:100000000000000005:100000000000000011';
+const body='I think my birthday is on 17 May, but I need to confirm.';
+const source={available:true,id,body,platform:'discord',conversation:'ExampleFriend',author:'ExampleFriend',ts:1,url:'https://discord.com/channels/@me/100000000000000005/100000000000000011',offset:0,nextOffset:null,bodyHash:'fixture'};
+const archive={definitions:()=>new ArchiveTools().definitions(),execute:async(name,args)=>{
+ events.push(name);
+ if(name==='archive_chats')return {rows:[{id:'dm',name:'ExampleFriend',platform:'discord',kind:'dm'}]};
+ if(name==='archive_search'||name==='archive_context')return {rows:[{...source,room_id:'dm'}]};
+ if(name==='archive_source')return source;
+ return {error:'No further fixture data.'};
+}};
+const client=new OpenAIAnalysis({keyFile:'/run/credentials/misty-bot.service/openai-key',onUsage:u=>usage.push(u)});
+const relay=new MistyRelay(store,client,{model:'gpt-6.1-sol',reasoningEffort:'high',rephrase:true,archive});
+relay.messageApi={send:async text=>{events.push('discord-send');delivered.push(text);return String(100000000000000064n+BigInt(delivered.length));}};
+const start=Date.now(),first=await relay.handle({id:'dialogue-probe-first',ts:Date.now(),body:'Can you check ExampleFriend’s birthday in the original messages?'});
+assert.equal(events[0],'discord-send','A progress message must precede the archive work');
+assert.ok(events.includes('archive_search'));assert.match(first,/17 May/);
+const firstParts=relay.rephraser.messages('conversation:dialogue-probe-first',relay.rephraser.read('conversation:dialogue-probe-first')&&relay.db.prepare("SELECT rendered FROM misty_answers WHERE source='conversation:dialogue-probe-first'").get().rendered);
+const second=await relay.handle({id:'dialogue-probe-second',ts:Date.now(),body:'Can you send me what they said, word for word?'});
+const exact=relay.db.prepare("SELECT body FROM relay_notices WHERE source LIKE 'quoted-source:dialogue-probe-second:%' ORDER BY seq").all();
+assert.equal(exact.map(r=>r.body).join(''),body);assert.equal(relay.db.prepare('SELECT count(*) n FROM relay_jobs').get().n,0);
+console.log(JSON.stringify({isolatedFictionalFixture:true,productionWrites:0,progress:delivered,firstAnswer:first,firstMessageParts:firstParts,sourceFraming:second,exactSourceQueued:exact.length>0,modelCalls:usage.length,elapsedMs:Date.now()-start}));store.close();

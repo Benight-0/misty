@@ -1,0 +1,35 @@
+[Unit]
+Description=Archival private message archive
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=20
+
+[Service]
+Type=simple
+User=archival
+Group=archival
+WorkingDirectory=/opt/archival
+Environment=NODE_ENV=production
+Environment=NODE_OPTIONS=--max-old-space-size=256
+Environment=ARCHIVAL_ANALYSIS=off
+EnvironmentFile=-/etc/archival/runtime.env
+ExecStart=/opt/archival/bin/node --disable-warning=ExperimentalWarning /opt/archival/app/vm-server.mjs
+Restart=always
+RestartSec=10
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/archival
+MemoryHigh=500M
+MemoryMax=650M
+MemorySwapMax=512M
+CPUQuota=100%
+TasksMax=128
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

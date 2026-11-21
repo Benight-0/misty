@@ -1,0 +1,34 @@
+[Unit]
+Description=Misty delegated agents and scheduled supervisor
+After=network-online.target misty-prominence.service misty-bot.service archival.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=misty-bot
+Group=misty-bot
+WorkingDirectory=/opt/misty-prominence
+ExecStart=/opt/misty-prominence/venv/bin/python /opt/misty-prominence/agent_runtime.py
+Environment=HOME=/var/lib/misty-prominence
+Environment=CODEX_HOME=/var/lib/misty-prominence/.codex
+Environment=PROMINENCE_CONFIG=/etc/misty-prominence/config.json
+Environment=PROMINENCE_MISTY_BRIDGE_TOKEN_FILE=/run/credentials/misty-agents.service/prominence-token
+Environment=PYTHONUNBUFFERED=1
+Environment=TZ=Asia/Kolkata
+Environment=PATH=/opt/misty-prominence/venv/bin:/opt/misty-prominence/runtime/bin:/opt/misty-prominence/runtime/codex-path:/usr/local/bin:/usr/bin:/bin
+LoadCredential=prominence-token:/etc/misty-bot/prominence-token
+UMask=0077
+Restart=on-failure
+RestartSec=10
+MemoryHigh=180M
+MemoryMax=300M
+CPUQuota=100%
+TasksMax=128
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+InaccessiblePaths=/etc/archival /var/lib/archival /etc/misty-bot
+
+[Install]
+WantedBy=multi-user.target

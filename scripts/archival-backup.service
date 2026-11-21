@@ -1,0 +1,20 @@
+[Unit]
+Description=Verified Archival archive and session backup
+After=archival.service
+
+[Service]
+Type=oneshot
+User=root
+Group=archival-backup
+ExecStart=/usr/bin/python3 /opt/archival/scripts/vm-backup.py
+UMask=0027
+Nice=15
+IOSchedulingClass=idle
+CPUQuota=40%
+MemoryMax=128M
+TimeoutStartSec=20min
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/backups/archival

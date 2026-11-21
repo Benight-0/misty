@@ -1,0 +1,4 @@
+websockets>=12
+Pillow>=10
+pyflakes>=3
+striprtf>=0.0.26

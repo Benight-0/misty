@@ -1,0 +1,48 @@
+[Unit]
+Description=Apollo private conversation inbox
+After=network-online.target archival.service
+Wants=network-online.target
+ConditionPathExists=/etc/apollo-bot/discord-token
+StartLimitIntervalSec=300
+StartLimitBurst=6
+
+[Service]
+Type=simple
+User=apollo-bot
+Group=apollo-bot
+WorkingDirectory=/opt/apollo-bot
+ExecStart=/opt/misty-bot/bin/node --max-old-space-size=80 --disable-warning=ExperimentalWarning /opt/apollo-bot/scripts/apollo-discord-bot.mjs
+Environment=NODE_ENV=production
+Environment=APOLLO_CHAT_MODEL=gpt-6-luna
+Environment=APOLLO_DECISION_MODEL=gpt-6-luna
+Environment=APOLLO_CHAT_REASONING=none
+Environment=APOLLO_DECISION_REASONING=none
+Environment=APOLLO_DELIVERY_MODE=store_only
+Environment=TZ=Asia/Kolkata
+LoadCredential=discord-token:/etc/apollo-bot/discord-token
+LoadCredential=openai-key:/etc/archival/openai-key
+LoadCredential=archive-token:/etc/archival/misty-archive-token
+StateDirectory=apollo-bot
+StateDirectoryMode=0700
+UMask=0077
+Restart=on-failure
+RestartSec=30
+TimeoutStopSec=180
+MemoryHigh=120M
+MemoryMax=170M
+CPUQuota=25%
+TasksMax=40
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
+InaccessiblePaths=/etc/archival /var/lib/archival /etc/misty-bot /var/lib/misty-bot /var/lib/misty-prominence
+
+[Install]
+WantedBy=multi-user.target

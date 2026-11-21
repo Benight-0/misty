@@ -1,0 +1,28 @@
+# secrets and local settings
+token.txt
+config.json
+.env
+
+# state (written to the data dir, which defaults to this folder)
+*.json
+!config.example.json
+!UPSTREAM.json
+!laptop-tool-schemas.json
+!vm_review_schema.json
+*.jsonl
+*.txt
+!requirements.txt
+context.db*
+focus.sqlite*
+*.lock
+.ask.lock
+CHANGELOG.md
+versions/
+runs/
+
+# logs and caches
+*.log
+__pycache__/
+*.pyc
+.venv/
+venv/

@@ -1,0 +1,84 @@
+name: misty
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: synapse
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synapse -d synapse"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  synapse:
+    image: matrixdotorg/synapse:v1.162.0
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./data/synapse:/data
+    ports:
+      - "127.0.0.1:8008:8008"
+
+  element:
+    image: ghcr.io/element-hq/element-web:v1.12.30
+    restart: unless-stopped
+    volumes:
+      - ./element-config.json:/app/config.json:ro
+    ports:
+      - "127.0.0.1:8080:80"
+
+  discord:
+    user: "1337:1337"
+    entrypoint: ["/usr/bin/mautrix-discord"]
+    command: ["--no-update", "--config", "/data/config.yaml", "--registration", "/data/registration.yaml"]
+    image: archival-discord:v0.7.7-dm-priority
+    build: ./bridge-patches/discord
+    restart: unless-stopped
+    depends_on: [synapse]
+    volumes:
+      - ./data/discord:/data
+      - discord_db:/database
+
+  whatsapp:
+    user: "1337:1337"
+    entrypoint: ["/usr/bin/mautrix-whatsapp"]
+    command: ["--no-update", "--config", "/data/config.yaml", "--registration", "/data/registration.yaml"]
+    image: dock.mau.dev/mautrix/whatsapp:v26.09
+    restart: unless-stopped
+    depends_on: [synapse]
+    volumes:
+      - ./data/whatsapp:/data
+
+  instagram:
+    user: "1337:1337"
+    entrypoint: ["/usr/bin/mautrix-meta"]
+    command: ["--no-update", "--config", "/data/config.yaml", "--registration", "/data/registration.yaml"]
+    image: dock.mau.dev/mautrix/meta:ig-v26.09
+    restart: unless-stopped
+    depends_on: [synapse]
+    volumes:
+      - ./data/instagram:/data
+
+  telegram:
+    profiles: ["telegram"]
+    user: "1337:1337"
+    entrypoint: ["/usr/bin/mautrix-telegram"]
+    command: ["--no-update", "--config", "/data/config.yaml", "--registration", "/data/registration.yaml"]
+    image: dock.mau.dev/mautrix/telegram:v26.09
+    restart: unless-stopped
+    depends_on: [synapse]
+    volumes:
+      - ./data/telegram:/data
+
+volumes:
+  postgres_data:
+  discord_db:
+

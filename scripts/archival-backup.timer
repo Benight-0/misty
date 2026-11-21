@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily Archival backup at 03:00 India time
+
+[Timer]
+OnCalendar=*-*-* 03:00:00 Asia/Kolkata
+Persistent=true
+RandomizedDelaySec=5m
+Unit=archival-backup.service
+
+[Install]
+WantedBy=timers.target

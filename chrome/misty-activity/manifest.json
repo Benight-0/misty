@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Misty private activity",
+  "version": "1.0.0",
+  "description": "Send only Chrome tab/window metadata to your private laptop activity collector. No page contents.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkzsudgo58KDK5HEtxx3N2W9SNbhTCYE5zMYd+f5bnwWo1uuO2qy2KoN9ZXqxBkBWyxqbPIaN5iNHNeoSM/k/9V9lD/8VFsJ5jv3qsCB5DLzAEA/q1mm4/om5pCa6bvUc2zwuDpGvkDibTP8quLhvHnOEeeb1pitMTzXGpnq9suexvsCuaK04vqwpJbdKd1auKDqZnRWZqvckb5CFHrtrzG13L9KqIWNafrTjlde69fk6nt+b0kRvY+5fy19haRxJXQnlolx+nPAJtDtSmFSJxvt9aqJBYOQxUn5nkEohwvxWPN4jleq30ocA1zgfv6JosN6Op68VSMEb209jZJ9YnQIDAQAB",
+  "permissions": [
+    "tabs",
+    "alarms",
+    "storage",
+    "nativeMessaging"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "incognito": "not_allowed",
+  "minimum_chrome_version": "120"
+}

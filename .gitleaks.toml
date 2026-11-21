@@ -1,0 +1,19 @@
+title = "Misty public-source scan"
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Chromium extension public RSA SPKI"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''(?:^|[\\/])chrome[\\/]misty-activity[\\/]manifest\.json$''']
+regexTarget = "line"
+regexes = ['''^\s*"key"\s*:\s*"[A-Za-z0-9+/=]+"\s*,?\s*$''']
+
+[[allowlists]]
+description = "Prominence upstream SHA-256 checksums"
+targetRules = ["discord-api-token"]
+condition = "AND"
+paths = ['''(?:^|[\\/])prominence[\\/]UPSTREAM\.json$''']
+regexTarget = "line"
+regexes = ['''^\s*"[^"]+\.py"\s*:\s*"[a-f0-9]{64}"\s*,?\s*$''']

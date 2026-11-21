@@ -1,0 +1,15 @@
+import {ArchiveStore} from '../app/store.mjs';
+import {Briefings} from '../app/briefings.mjs';
+import {OpenAIAnalysis} from '../app/openai-analysis.mjs';
+const store=new ArchiveStore('/var/lib/archival/data/archive.sqlite');
+let usage;
+const analysisClient=new OpenAIAnalysis({keyFile:'/etc/archival/openai-key',onUsage:value=>usage=value});
+const analysis=new Briefings(store,{poll:false,model:'gpt-5.4-mini',analysisClient,planCacheLimit:1});
+const room=store.statement("SELECT c.id FROM conversations c JOIN briefing_jobs j ON j.room_id=c.id WHERE c.connected=1 AND j.enabled=1 AND c.message_count BETWEEN 10 AND 70 AND c.platform='discord' AND c.kind='dm' AND c.server_id='' ORDER BY c.last_ts DESC LIMIT 1").get();
+if(!room)throw new Error('No small connected chat for the API check');
+store.statement('UPDATE briefing_jobs SET force=999,not_before=0,revision=revision+1 WHERE room_id=?').run(room.id);
+const success=await analysis.runOne();
+const job=store.statement('SELECT status,error FROM briefing_jobs WHERE room_id=?').get(room.id);
+console.log(JSON.stringify({success,job,usage:usage?{model:usage.model,inputTokens:usage.inputTokens,outputTokens:usage.outputTokens,status:usage.status}:null}));
+store.statement('UPDATE briefing_jobs SET force=0 WHERE room_id=?').run(room.id);
+await analysis.close();store.close();if(!success)process.exitCode=1;

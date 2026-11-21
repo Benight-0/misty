@@ -1,0 +1,27 @@
+[Unit]
+Description=Misty private laptop tooling broker
+After=network.target misty-bot.service
+
+[Service]
+Type=simple
+User=misty-bot
+Group=misty-bot
+WorkingDirectory=/opt/misty-bot
+Environment=MISTY_LAPTOP_REVIEW=off
+ExecStart=/opt/misty-bot/bin/node --disable-warning=ExperimentalWarning /opt/misty-bot/scripts/misty-laptop-tools-server.mjs
+LoadCredential=relay-token:/var/lib/misty-bot/relay-token
+LoadCredential=prominence-token:/etc/misty-bot/prominence-token
+LoadCredential=vm-browser-token:/etc/misty-bot/vm-browser-token
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/misty-bot
+MemoryMax=96M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

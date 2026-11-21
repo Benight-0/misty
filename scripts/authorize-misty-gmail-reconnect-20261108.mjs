@@ -1,0 +1,35 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {ArchiveStore} from '../app/store.mjs';
+import {Gmail,GMAIL_SCOPE,GMAIL_COMPOSE_SCOPE,GMAIL_MODIFY_SCOPE} from '../app/gmail.mjs';
+const root=fileURLToPath(new URL('../',import.meta.url));
+const directory=path.join(root,'data/deployment/misty-gmail-reconnect-20261108');
+const original=JSON.parse(await fs.readFile(path.join(root,'data/gmail/credentials.json'),'utf8'));
+const expected='27126bef47f198dd10d55055';
+if(Object.keys(original.accounts||{}).length!==1||!original.accounts[expected]||!original.client?.client_secret)throw Error('Unexpected original mailbox');
+await fs.mkdir(directory,{recursive:true});
+const user=execFileSync('whoami.exe',{encoding:'utf8'}).trim();
+execFileSync('icacls.exe',[directory,'/grant:r',user+':(OI)(CI)F','SYSTEM:(OI)(CI)F','Administrators:(OI)(CI)F'],{stdio:'ignore'});
+execFileSync('icacls.exe',[directory,'/inheritance:r'],{stdio:'ignore'});
+const store=new ArchiveStore(':memory:');
+const gmail=new Gmail(store,fn=>Promise.resolve().then(fn),{directory,requestedScopes:[GMAIL_SCOPE,GMAIL_COMPOSE_SCOPE,GMAIL_MODIFY_SCOPE]});
+gmail.wake=()=>{};
+try{
+ await gmail.ready;
+ if(Object.keys(gmail.vault.accounts).length)throw Error('Staged account already exists; inspect before retry');
+ await gmail.configure({installed:original.client});
+ const {url}=await gmail.authorize();
+ await fs.writeFile(path.join(directory,'authorization-url.txt'),url);
+ console.log('Authorization listener ready');
+ const end=Date.now()+600000;
+ while(Date.now()<end&&!gmail.vault.accounts[expected])await new Promise(r=>setTimeout(r,1000));
+ const account=gmail.vault.accounts[expected];
+ if(!account||Object.keys(gmail.vault.accounts).length!==1)throw Error('Expected mailbox was not authorized');
+ await gmail.accessToken(expected,true);
+ const required=[GMAIL_SCOPE,GMAIL_COMPOSE_SCOPE,GMAIL_MODIFY_SCOPE];
+ if(required.some(s=>!account.scopes.includes(s))||account.scopes.some(s=>!required.includes(s)))throw Error('Unexpected granted scopes');
+ await fs.writeFile(path.join(directory,'receipt.json'),JSON.stringify({authorized:true,account:expected,scopes:account.scopes,at:new Date().toISOString()}));
+ console.log('Fresh authorization verified and staged');
+}finally{await gmail.close();store.close();}

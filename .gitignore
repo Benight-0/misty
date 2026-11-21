@@ -1,0 +1,53 @@
+# Private configuration and credentials
+.env
+.env.*
+!.env.example
+**/config.json
+**/credentials*.json
+**/client_secret*.json
+**/*token*.json
+*.key
+*.pem
+*.p12
+*.pfx
+.ssh/
+.codex/
+.claude/
+.kaggle/
+# Local archives, session state, recordings and generated reports
+data/
+local/
+backups/
+logs/
+recordings/
+profiles/
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.db
+*.db-*
+*.log
+*.har
+WORK.md
+prominence/migration-context.md
+docs/misty-current-prompts.md
+scripts/discord-server-ids.txt
+abc.skibidi
+# Dependencies and build outputs
+node_modules/
+**/node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+coverage/
+desktop/**/bin/
+desktop/**/obj/
+tooling/cline/dist/
+# Editor and operating-system files
+.vs/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net9.0-windows</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup><ItemGroup><PackageReference Include="Whisper.net" Version="1.9.1"/><PackageReference Include="Whisper.net.Runtime" Version="1.9.1"/><Compile Include="../Misty.Overlay/WhisperTranscriber.cs" Link="WhisperTranscriber.cs"/><PackageReference Include="System.Speech" Version="9.0.0"/><PackageReference Include="Vosk" Version="0.3.38"/><PackageReference Include="NAudio" Version="2.2.1"/><Compile Include="../Misty.Overlay/LocalVoice.cs" Link="LocalVoice.cs"/></ItemGroup>  <Target Name="MistyWhisperNativeSidecars" BeforeTargets="GenerateSingleFileBundle">
+    <ItemGroup>
+      <ResolvedFileToPublish Update="@(ResolvedFileToPublish)" Condition="$([System.String]::Copy('%(ResolvedFileToPublish.Identity)').Contains('whisper.net.runtime'))">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+  <Target Name="MistyCopyWhisperCpuRuntime" AfterTargets="Publish" Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+    <ItemGroup>
+      <MistyWhisperNative Include="$(NuGetPackageRoot)whisper.net.runtime\1.9.1\build\win-x64\*.dll" />
+    </ItemGroup>
+    <MakeDir Directories="$(PublishDir)runtimes\win-x64" />
+    <Copy SourceFiles="@(MistyWhisperNative)" DestinationFolder="$(PublishDir)runtimes\win-x64" SkipUnchangedFiles="true" />
+  </Target>
+</Project>

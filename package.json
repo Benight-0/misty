@@ -1,0 +1,20 @@
+{
+  "name": "misty",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "playwright-core": "1.64.1"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning app/server.mjs",
+    "import": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning app/import.mjs",
+    "backup": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning app/backup.mjs",
+    "benchmark": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning app/benchmark.mjs",
+    "test": "node --import ./app/tests/setup.mjs --test app/tests/*.test.mjs scripts/discord-import.test.mjs"
+  },
+  "description": "Self-hosted personal assistant, conversation archive and connected-account tools",
+  "license": "MIT"
+}

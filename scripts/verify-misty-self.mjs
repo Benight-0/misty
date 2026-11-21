@@ -1,0 +1,22 @@
+// Real inference, isolated memory and simulated Discord effects. No owner turns/jobs in production.
+import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {BotStore} from '../app/discord-bot.mjs';
+import {MistyRelay} from '../app/misty-relay.mjs';
+import {MistySelf} from '../app/misty-self.mjs';
+import {OpenAIAnalysis} from '../app/openai-analysis.mjs';
+const production=new DatabaseSync('/var/lib/misty-bot/chat.sqlite',{readOnly:true});
+const profile=JSON.parse(production.prepare("SELECT value FROM bot_settings WHERE key='owner_voice'").get().value);production.close();
+const store=new BotStore(':memory:');store.set('owner_voice',profile);
+const usage=[],client=new OpenAIAnalysis({keyFile:'/run/credentials/misty-bot.service/openai-key',onUsage:u=>usage.push(u)});
+const relay=new MistyRelay(store,client,{model:'gpt-6.1-sol',reasoningEffort:'high',rephrase:true});
+const id='100000000000000057',request='100000000000000063';let deleted=0,updated=0;
+const api={channel:'100000000000000051',ownMessages:async()=>({messages:[{id,body:'Duplicate reply',timestamp:new Date().toISOString()}],nextBefore:''}),deleteOwnMessage:async message=>{assert.equal(message,id);deleted++;return {id,state:'deleted'};}};
+const presence={current:()=>({status:'online',activity:'custom',text:'around'}),set:async p=>{assert.equal(p.text,'around, if you need me');updated++;return {...p,state:'gateway_sent'};}};
+relay.self=new MistySelf(relay,api,presence);const start=Date.now();
+const reply=await relay.handle({id:request,ts:Date.now(),body:"Set your status to 'around, if you need me' and remove your last duplicate reply."});
+assert.equal(deleted,1);assert.equal(updated,1);assert.equal(relay.db.prepare('SELECT count(*) n FROM relay_jobs').get().n,0);
+const saved=relay.db.prepare('SELECT original,rendered,state FROM misty_answers').get();
+assert.ok(!/\b(can(?:not|['’]t)|unable to)\b[^.!?\n]{0,100}\b(delete|status|presence)\b/i.test(reply),'Reply denied a confirmed action');
+assert.match(reply,/remov|delet/i);assert.match(reply,/around, if you need me/i);
+console.log(JSON.stringify({isolated:true,productionWrites:0,reply,original:saved.original,presentation:saved.state,deletions:deleted,statusWrites:updated,modelCalls:usage.length,elapsedMs:Date.now()-start}));store.close();

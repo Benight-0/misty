@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Misty · Status</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css?v=cpu-p95-1">
+  <script src="/dashboard.js?v=cpu-p95-1" defer></script>
+</head>
+<body>
+<main>
+  <header>
+    <div><div class="eyebrow">MISTY / STATUS</div><h1>A small window into the system.</h1></div>
+    <div class="freshness" role="status"><span class="dot" id="dot"></span><span id="freshness">Connecting…</span></div>
+  </header>
+  <section class="numbers" aria-label="Current metrics">
+    <article class="number"><h2>Estimated API spend</h2><strong id="spend">—</strong><p id="since">Recorded VM usage</p></article>
+    <article class="number"><h2>Today’s API spend</h2><strong id="today">—</strong><p>USD · India time</p></article>
+    <article class="number"><h2>Tokens processed</h2><strong id="tokens">—</strong><p id="records">Input + output</p></article>
+    <article class="number"><h2>CPU</h2><strong id="cpu">—</strong><p>5-second average</p></article>
+    <article class="number"><h2>Memory</h2><strong id="memory">—</strong><p id="memory-detail">Used / total RAM</p></article>
+    <article class="number"><h2>Storage</h2><strong id="disk">—</strong><p id="disk-detail">Used / total disk</p></article>
+  </section>
+  <section class="charts">
+    <article class="panel"><div class="panel-head"><h2>API spend</h2><span>Last 7 days · USD, estimated</span></div><div id="spend-chart" class="chart" aria-label="Daily estimated API spending"></div></article>
+    <article class="panel"><div class="panel-head"><h2>CPU & memory</h2><select id="host-range" aria-label="Resource history range"><option value="live">Live ? last 15 minutes</option><option value="day">Last 24 hours</option></select></div><div id="host-chart" class="chart" aria-label="CPU and memory history"></div><div class="legend"><span><i class="cpu-key"></i>CPU</span><span><i class="memory-key"></i>Memory</span><span id="history-note">Live samples every 5 seconds</span></div></article>
+  </section>
+  <section class="panel cpu-percentile" aria-labelledby="cpu-p95-heading">
+    <div><h2 id="cpu-p95-heading">CPU 95th percentile · last 7 days</h2><p>95% of recorded minute averages were at or below this level.</p></div>
+    <div class="cpu-percentile-value"><strong id="cpu-p95">—</strong><p id="cpu-p95-coverage">Collecting CPU history</p></div>
+  </section>
+  <section class="panel tasks" aria-labelledby="tasks-heading">
+    <div class="panel-head"><h2 id="tasks-heading">Spend by task</h2><span>All recorded history · share of priced spend</span></div>
+    <div class="table-wrap"><table><thead><tr><th>Task</th><th>Share</th><th>Est. cost</th></tr></thead><tbody id="tasks"><tr><td colspan="3">Waiting for the first sample…</td></tr></tbody></table></div>
+    <p class="task-note" id="task-coverage">Broad categories from recorded usage.</p>
+  </section>
+  <section class="panel models">
+    <div class="panel-head"><h2>Model usage</h2><span>All recorded history · share by tokens</span></div>
+    <div id="model-share" class="model-share" aria-label="Model token shares"></div>
+    <div class="table-wrap"><table><thead><tr><th>Model</th><th>Share</th><th>Input tokens</th><th>Output tokens</th><th>Cached input</th><th>Est. cost</th></tr></thead><tbody id="models"><tr><td colspan="6">Waiting for the first sample…</td></tr></tbody></table></div>
+  </section>
+  <details class="coverage"><summary>What these numbers include</summary><p id="coverage">Recorded usage on this VM. Costs are estimates, not an invoice.</p><p id="warnings"></p><p>Rates updated <span id="rates-date">—</span> against the official model pages: <a href="https://developers.openai.com/api/docs/models/gpt-6-luna" rel="noreferrer">GPT-6 Luna</a>, <a href="https://developers.openai.com/api/docs/models/gpt-5.6-luna" rel="noreferrer">GPT-5.6 Luna</a>, <a href="https://developers.openai.com/api/docs/models/gpt-6.1-sol" rel="noreferrer">GPT-6.1 Sol</a>, <a href="https://developers.openai.com/api/docs/models/gpt-5.4-mini" rel="noreferrer">GPT-5.4 Mini</a>. Known cached input, cache writes and long-context rates are included. Missing usage is not reconstructed.</p></details>
+  <footer><span>Resources every 5 seconds ? costs every minute. No login or cookies.</span><span id="updated">All times in India time.</span></footer>
+</main>
+</body>
+</html>

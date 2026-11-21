@@ -1,0 +1,29 @@
+[Unit]
+Description=Archival Cloudflare Tunnel
+Wants=network-online.target
+After=network-online.target archival.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=cloudflared
+Group=cloudflared
+Environment=GOMEMLIMIT=64MiB
+Environment=GOMAXPROCS=1
+ExecStart=/usr/local/bin/cloudflared tunnel --no-autoupdate --metrics 127.0.0.1:20241 run --token-file /etc/cloudflared/archival-token
+Restart=always
+RestartSec=10
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+CapabilityBoundingSet=
+MemoryHigh=100M
+MemoryMax=160M
+TasksMax=64
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

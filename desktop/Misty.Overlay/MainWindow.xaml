@@ -1,0 +1,516 @@
+<Window x:Class="Misty.Overlay.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Misty" Width="82" Height="700" MinHeight="400"
+        WindowStyle="None" ResizeMode="NoResize" AllowsTransparency="True"
+        Topmost="True" ShowInTaskbar="True" ShowActivated="False" Background="Transparent"
+        FontFamily="Whitney, Segoe UI" FontSize="13"
+        SnapsToDevicePixels="True" UseLayoutRounding="True"
+        SourceInitialized="Window_SourceInitialized" Loaded="Window_Loaded" Closing="Window_Closing"
+        Activated="Window_Activated">
+  <Window.Resources>
+    <SolidColorBrush x:Key="Ink" Color="#F8F9FA"/>
+    <SolidColorBrush x:Key="Muted" Color="#ADB5BD"/>
+    <SolidColorBrush x:Key="Accent" Color="#DEE2E6"/>
+    <Style TargetType="ToolTip">
+      <Setter Property="Background" Value="#F00B0C0D"/>
+      <Setter Property="Foreground" Value="#F8F9FA"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="9,6"/>
+      <Setter Property="FontFamily" Value="Whitney, Segoe UI"/>
+    </Style>
+    <Style TargetType="Thumb" x:Key="DarkThumb">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Thumb">
+            <Border Background="#6C757D" Width="4" Margin="1,0,1,0"/>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style TargetType="ScrollBar">
+      <Setter Property="Width" Value="7"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="ScrollBar">
+            <Grid Background="Transparent" Width="7">
+              <Track x:Name="PART_Track" IsDirectionReversed="True" Focusable="False">
+                <Track.DecreaseRepeatButton>
+                  <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False"/>
+                </Track.DecreaseRepeatButton>
+                <Track.Thumb><Thumb Style="{StaticResource DarkThumb}"/></Track.Thumb>
+                <Track.IncreaseRepeatButton>
+                  <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False"/>
+                </Track.IncreaseRepeatButton>
+              </Track>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="RailButton" TargetType="Button">
+      <Setter Property="Width" Value="64"/>
+      <Setter Property="Height" Value="58"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="#F8F9FA"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Opacity" Value="0.68"/>
+      <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid Background="Transparent">
+              <Border x:Name="Mark" Width="2" Height="17" Background="#F8F9FA"
+                      HorizontalAlignment="Left" VerticalAlignment="Center" Visibility="Collapsed"/>
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="Tag" Value="active">
+                <Setter Property="Opacity" Value="1"/>
+                <Setter TargetName="Mark" Property="Visibility" Value="Visible"/>
+              </Trigger>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="1"/>
+              </Trigger>
+              <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter Property="Opacity" Value="1"/>
+                <Setter TargetName="Mark" Property="Visibility" Value="Visible"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="QuietButton" TargetType="Button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource Accent}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="6"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border Background="{TemplateBinding Background}">
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Margin="{TemplateBinding Padding}"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="#F8F9FA"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="ChatListButton" TargetType="Button">
+      <Setter Property="Background" Value="#202326"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="14,11"/>
+      <Setter Property="Margin" Value="0,0,0,7"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="ItemSurface" Background="{TemplateBinding Background}" CornerRadius="11"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="Stretch"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="ItemSurface" Property="Background" Value="#343A40"/>
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="UtilityButton" TargetType="Button">
+      <Setter Property="Background" Value="#343A40"/>
+      <Setter Property="Foreground" Value="#F8F9FA"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Border x:Name="UtilitySurface" Background="{TemplateBinding Background}" CornerRadius="6"
+                    Padding="{TemplateBinding Padding}">
+              <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="Center"/>
+            </Border>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="UtilitySurface" Property="Background" Value="#495057"/></Trigger>
+              <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="CloseButton" TargetType="Button">
+      <Setter Property="Width" Value="28"/>
+      <Setter Property="Height" Value="28"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid Background="Transparent">
+              <Path Data="M3 3 L15 15 M15 3 L3 15" Stroke="#F8F9FA" StrokeThickness="1.6"
+                    Width="18" Height="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter Property="Opacity" Value="0.72"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style x:Key="MessageHover" TargetType="Grid">
+      <Setter Property="Background" Value="Transparent"/>
+      <Style.Triggers>
+        <Trigger Property="IsMouseOver" Value="True">
+          <Setter Property="Background" Value="#2A2E32"/>
+        </Trigger>
+        <Trigger Property="Tag" Value="reply">
+          <Setter Property="Background" Value="#495057"/>
+        </Trigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="MessageReplyButton" TargetType="Button">
+      <Setter Property="Visibility" Value="Collapsed"/>
+      <Setter Property="Width" Value="26"/>
+      <Setter Property="Height" Value="25"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="ToolTip" Value="Reply to this message"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid Background="Transparent">
+              <Path Data="M8 4 L3 9 L8 14 M3 9 H13 C17 9 20 11 20 16"
+                    Stroke="#CED4DA" StrokeThickness="1.6" StrokeLineJoin="Round"
+                    StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                    Width="22" Height="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+      <Style.Triggers>
+        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=Grid}}" Value="True">
+          <Setter Property="Visibility" Value="Visible"/>
+        </DataTrigger>
+      </Style.Triggers>
+    </Style>
+    <Style x:Key="ReplyCancelButton" TargetType="Button">
+      <Setter Property="Width" Value="21"/>
+      <Setter Property="Height" Value="21"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Cursor" Value="Hand"/>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="Button">
+            <Grid Background="Transparent">
+              <Path Data="M3 3 L13 13 M13 3 L3 13" Stroke="#DEE2E6" StrokeThickness="1.5"
+                    Width="16" Height="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+              <Trigger Property="IsMouseOver" Value="True"><Setter Property="Opacity" Value="0.75"/></Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </Window.Resources>
+
+  <Grid>
+    <Grid x:Name="DockSurface" Margin="6" Background="#F0000000"
+          SizeChanged="DockSurface_SizeChanged">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition x:Name="PanelColumn" Width="0"/>
+        <ColumnDefinition Width="70"/>
+      </Grid.ColumnDefinitions>
+
+    <Grid x:Name="DetailRoot" Grid.Column="0" Background="#FA141618" Visibility="Collapsed">
+      <Grid x:Name="ChatPanel" Visibility="Collapsed">
+        <Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="22,12,17,6" MouseLeftButtonDown="Title_MouseLeftButtonDown">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Direct Message" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center"/>
+          <Button Grid.Column="1" ToolTip="Close panel" AutomationProperties.Name="Close panel" Style="{StaticResource CloseButton}" Click="Collapse_Click" VerticalAlignment="Center"/>
+        </Grid>
+        <ScrollViewer Grid.Row="1" x:Name="ChatScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      PreviewMouseWheel="ChatScroll_PreviewMouseWheel" Background="Transparent">
+          <StackPanel x:Name="MessageList" Margin="22,5,22,18">
+            <TextBlock x:Name="ChatEmpty" Text="Connecting to your conversation…" Foreground="{StaticResource Muted}" Margin="0,16,0,0"/>
+          </StackPanel>
+        </ScrollViewer>
+        <Border x:Name="WorkingStrip" Grid.Row="2" Visibility="Collapsed" Margin="20,0,20,4"
+                Background="#202326" CornerRadius="10" Padding="12,7">
+          <ScrollViewer MaxHeight="120" VerticalScrollBarVisibility="Auto">
+            <TextBlock x:Name="WorkingText" Foreground="#CED4DA" FontSize="12" FontWeight="Normal"
+                       TextWrapping="Wrap" VerticalAlignment="Center" Text="Misty is thinking"/>
+          </ScrollViewer>
+        </Border>
+        <Grid Grid.Row="3" Margin="20,4,20,16">
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+          <Border Background="#343A40" CornerRadius="18" MinHeight="43">
+            <Grid>
+              <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+              <Border x:Name="ReplyStrip" Visibility="Collapsed" Background="#495057"
+                      CornerRadius="18,18,0,0" Padding="13,5,10,5">
+                <Grid>
+                  <Grid.ColumnDefinitions><ColumnDefinition Width="23"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                  <Path Data="M8 4 L3 9 L8 14 M3 9 H13 C17 9 20 11 20 16"
+                        Stroke="#DEE2E6" StrokeThickness="1.5" StrokeLineJoin="Round"
+                        Width="19" Height="18" VerticalAlignment="Center"/>
+                  <TextBlock x:Name="ReplyLabel" Grid.Column="1" Text="Replying to Misty"
+                             Foreground="{StaticResource Ink}" VerticalAlignment="Center" FontSize="12"/>
+                  <Button Grid.Column="2" Style="{StaticResource ReplyCancelButton}"
+                          Click="CancelReply_Click" ToolTip="Cancel reply" AutomationProperties.Name="Cancel reply"
+                          VerticalAlignment="Center"/>
+                </Grid>
+              </Border>
+              <TextBox x:Name="Composer" Grid.Row="1" AcceptsReturn="True" TextWrapping="Wrap" MaxLength="16000"
+                       MinHeight="29" MaxHeight="105" Margin="11,5"
+                       VerticalScrollBarVisibility="Auto" PreviewKeyDown="Composer_PreviewKeyDown" TextChanged="Composer_TextChanged"
+                       BorderThickness="0" Background="Transparent" Padding="3,4" FontSize="15"
+                       Foreground="{StaticResource Ink}" CaretBrush="#F8F9FA"/>
+            </Grid>
+          </Border>
+          <TextBlock Grid.Row="1" x:Name="ComposerStatus" Visibility="Collapsed" FontSize="11" Foreground="{StaticResource Muted}"
+                     Margin="4,6,0,0" TextWrapping="Wrap"/>
+        </Grid>
+      </Grid>
+
+      <Grid x:Name="CodexPanel" Visibility="Collapsed">
+        <Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="22,12,17,6" MouseLeftButtonDown="Title_MouseLeftButtonDown">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <Button x:Name="CodexBack" Content="←" Visibility="Collapsed" Style="{StaticResource QuietButton}" Click="CodexBack_Click"
+                  FontSize="20" Width="31" Margin="-8,0,6,0" ToolTip="All Codex chats"/>
+          <TextBlock Grid.Column="1" x:Name="CodexTitle" Text="Codex" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}"
+                     VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+          <Button Grid.Column="2" ToolTip="Close panel" AutomationProperties.Name="Close panel" Style="{StaticResource CloseButton}"
+                  Click="Collapse_Click" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Row="1" x:Name="CodexIndex">
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+          <Border Grid.Row="0" Background="#2A2E32" CornerRadius="12" Margin="22,5,22,10" Padding="12,4">
+            <Grid>
+              <TextBox x:Name="CodexSearch" Background="Transparent" BorderThickness="0" Foreground="{StaticResource Ink}"
+                       CaretBrush="#F8F9FA" FontSize="14" Padding="3,6" TextChanged="CodexSearch_TextChanged"/>
+              <TextBlock x:Name="CodexSearchHint" Text="Search chats" Foreground="{StaticResource Muted}"
+                         Margin="3,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+            </Grid>
+          </Border>
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="CodexList" Margin="22,4,22,18">
+              <TextBlock x:Name="CodexEmpty" Text="Loading Codex chats…" Foreground="{StaticResource Muted}" Margin="0,16,0,0"/>
+            </StackPanel>
+          </ScrollViewer>
+        </Grid>
+        <ScrollViewer Grid.Row="1" x:Name="CodexTranscriptScroll" Visibility="Collapsed" VerticalScrollBarVisibility="Auto"
+                      PreviewMouseWheel="CodexTranscriptScroll_PreviewMouseWheel">
+          <StackPanel x:Name="CodexTranscriptList" Margin="22,5,22,18"/>
+        </ScrollViewer>
+        <Grid Grid.Row="2" x:Name="CodexComposerArea" Visibility="Collapsed" Margin="20,4,20,16">
+          <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+          <Border Background="#343A40" CornerRadius="18" MinHeight="43" MaxHeight="116" Padding="11,5">
+            <TextBox x:Name="CodexComposer" AcceptsReturn="True" TextWrapping="Wrap" MaxLength="10000" MinHeight="29" MaxHeight="105"
+                     VerticalScrollBarVisibility="Auto" PreviewKeyDown="CodexComposer_PreviewKeyDown" TextChanged="CodexComposer_TextChanged"
+                     BorderThickness="0" Background="Transparent" Padding="3,4" FontSize="15"
+                     Foreground="{StaticResource Ink}" CaretBrush="#F8F9FA"/>
+          </Border>
+          <TextBlock Grid.Row="1" x:Name="CodexComposerStatus" Visibility="Collapsed" FontSize="11" Foreground="{StaticResource Muted}"
+                     Margin="4,6,0,0" TextWrapping="Wrap"/>
+        </Grid>
+      </Grid>
+
+      <Grid x:Name="ActivityPanel" Visibility="Collapsed">
+        <Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="22,12,17,6" MouseLeftButtonDown="Title_MouseLeftButtonDown">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Laptop activity" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center"/>
+          <Button Grid.Column="1" ToolTip="Close panel" AutomationProperties.Name="Close panel" Style="{StaticResource CloseButton}" Click="Collapse_Click" VerticalAlignment="Center"/>
+        </Grid>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+          <StackPanel Margin="22,10,22,24">
+            <TextBlock x:Name="ActivityState" Text="Checking…" FontSize="23" FontWeight="SemiBold" Foreground="{StaticResource Ink}"/>
+            <TextBlock x:Name="ActivityAge" Foreground="{StaticResource Muted}" Margin="0,3,0,16"/>
+            <StackPanel x:Name="ActivityReport"/>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+
+      <Grid x:Name="VmPanel" Visibility="Collapsed">
+        <Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="22,12,17,6" MouseLeftButtonDown="Title_MouseLeftButtonDown">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="VM status" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center"/>
+          <Button x:Name="VmOverviewTab" Grid.Column="1" Content="Overview" Style="{StaticResource QuietButton}" Click="VmOverview_Click" Margin="0,0,4,0"/>
+          <Button x:Name="VmTraceTab" Grid.Column="2" Content="Trace" Style="{StaticResource QuietButton}" Click="VmTrace_Click" Margin="0,0,8,0" ToolTip="Misty and agent work"/>
+          <Button Grid.Column="3" ToolTip="Close panel" AutomationProperties.Name="Close panel" Style="{StaticResource CloseButton}" Click="Collapse_Click" VerticalAlignment="Center"/>
+        </Grid>
+        <ScrollViewer x:Name="VmOverviewScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto">
+          <StackPanel x:Name="VmList" Margin="22,10,22,22">
+            <TextBlock Text="Checking VM services…" Foreground="{StaticResource Muted}" Margin="0,16,0,0"/>
+          </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer x:Name="VmTraceScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+          <StackPanel x:Name="VmTraceList" Margin="22,10,22,24"/>
+        </ScrollViewer>
+      </Grid>
+      <Grid x:Name="GmailPanel" Visibility="Collapsed">
+        <Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="32"/></Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="20,10,16,7">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="190"/><ColumnDefinition Width="170"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Gmail" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+          <Grid Grid.Column="1" Margin="0,5,12,5">
+            <TextBox x:Name="GmailSearch" Padding="10,5" Background="#343A40" Foreground="#F8F9FA" BorderThickness="0" ToolTip="Search stored mail"
+                     KeyDown="GmailSearch_KeyDown" TextChanged="GmailSearch_TextChanged"/>
+            <TextBlock x:Name="GmailSearchHint" Text="Search mail" Foreground="#ADB5BD" Margin="10,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+          </Grid>
+          <Button x:Name="GmailAccounts" Grid.Column="2" Margin="0,5,12,5" Background="#343A40" Foreground="#F8F9FA"
+                  Style="{StaticResource UtilityButton}" Padding="10,3" Click="GmailAccounts_Click" ToolTip="Connected Gmail accounts"/>
+          <Button Grid.Column="3" Content="Compose" Style="{StaticResource UtilityButton}" Margin="0,5,8,5" Padding="8,3" Click="GmailCompose_Click"/>
+          <Button Grid.Column="4" Content="↻" ToolTip="Refresh inbox" Style="{StaticResource QuietButton}" Click="GmailRefresh_Click" FontSize="17"/>
+          <Button Grid.Column="5" ToolTip="Close panel" AutomationProperties.Name="Close panel" Style="{StaticResource CloseButton}" Click="Collapse_Click" VerticalAlignment="Center" Margin="8,0,0,0"/>
+        </Grid>
+        <StackPanel Grid.Row="1" Margin="12,0,12,8">
+          <WrapPanel x:Name="GmailTopNavigation"/>
+          <TextBlock x:Name="GmailFilterSummary" Foreground="#ADB5BD" FontSize="11" TextWrapping="Wrap" Margin="2,0,2,3" Visibility="Collapsed"/>
+        </StackPanel>
+        <Grid Grid.Row="2">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="185"/><ColumnDefinition Width="300"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto" Background="#202326"><StackPanel x:Name="GmailFolders" Margin="9,12,8,16"/></ScrollViewer>
+          <Grid Grid.Column="1" Background="#282B2E">
+            <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="GmailMessages" Margin="9,9,9,5"/></ScrollViewer>
+            <Button x:Name="GmailOlder" Grid.Row="1" Content="Load older" Style="{StaticResource QuietButton}" Visibility="Collapsed" Click="GmailOlder_Click" Margin="9,4,9,9"/>
+          </Grid>
+          <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto"><StackPanel x:Name="GmailDetail" Margin="20,14,20,22"/></ScrollViewer>
+        </Grid>
+        <TextBlock x:Name="GmailStatus" Grid.Row="3" Margin="20,4" Foreground="{StaticResource Muted}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+      </Grid>
+      <Grid x:Name="ApprovalPanel" Visibility="Collapsed">
+        <Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition Height="*"/><RowDefinition Height="32"/></Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="20,10,16,7">
+          <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+          <TextBlock Text="Approvals" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource Ink}" VerticalAlignment="Center"/>
+          <Button Grid.Column="1" ToolTip="Close panel" AutomationProperties.Name="Close panel" Style="{StaticResource CloseButton}" Click="Collapse_Click" VerticalAlignment="Center"/>
+        </Grid>
+        <Grid Grid.Row="1"><Grid.ColumnDefinitions><ColumnDefinition Width="190"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+          <ScrollViewer Background="#202326" VerticalScrollBarVisibility="Auto"><StackPanel x:Name="ApprovalList" Margin="9,12,9,12"/></ScrollViewer>
+          <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"><StackPanel x:Name="ApprovalDetail" Margin="20,14,20,22"/></ScrollViewer>
+        </Grid>
+        <TextBlock x:Name="ApprovalStatus" Grid.Row="2" Margin="20,4" Foreground="{StaticResource Muted}" FontSize="11" TextTrimming="CharacterEllipsis"/>
+      </Grid>
+    </Grid>
+
+    <Grid x:Name="RailRoot" Grid.Column="1" Background="#F0000000">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="72"/><RowDefinition Height="*"/><RowDefinition Height="91"/>
+      </Grid.RowDefinitions>
+      <Border Grid.Row="0" MouseLeftButtonDown="Title_MouseLeftButtonDown"
+              ToolTip="Misty overlay">
+        <Ellipse Width="42" Height="42" HorizontalAlignment="Center" VerticalAlignment="Center"
+                 AutomationProperties.Name="Misty profile picture">
+          <Ellipse.Fill>
+            <ImageBrush ImageSource="pack://application:,,,/Assets/misty-avatar.png" Stretch="UniformToFill"/>
+          </Ellipse.Fill>
+        </Ellipse>
+      </Border>
+      <StackPanel Grid.Row="1" VerticalAlignment="Top" Margin="3,11,3,0">
+        <Grid Width="64" Height="58">
+          <Button x:Name="TalkButton" Style="{StaticResource RailButton}" Click="Talk_Click"
+                  ToolTip="Direct Message" AutomationProperties.Name="Direct Message">
+            <Viewbox Width="25" Height="25"><Canvas Width="24" Height="24">
+              <Path Data="M4 5 H20 V17 H10 L5 21 V17 H4 Z" Stroke="#F8F9FA" StrokeThickness="1.8"
+                    StrokeLineJoin="Miter" Fill="Transparent"/>
+              <Path Data="M8 10 H16 M8 13 H14" Stroke="#F8F9FA" StrokeThickness="1.6"/>
+            </Canvas></Viewbox>
+          </Button>
+          <Ellipse x:Name="DmUnreadDot" Width="9" Height="9" Fill="#FF4B55" Stroke="#000000"
+                   StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+                   Margin="43,13,0,0" Visibility="Collapsed" IsHitTestVisible="False"/>
+        </Grid>
+        <Grid Width="64" Height="58">
+          <Button x:Name="CodexButton" Style="{StaticResource RailButton}" Click="Codex_Click"
+                  ToolTip="Codex" AutomationProperties.Name="Codex">
+            <Viewbox Width="25" Height="25"><Canvas Width="24" Height="24">
+              <Path Data="M8 6 L3 12 L8 18 M16 6 L21 12 L16 18 M14 4 L10 20"
+                    Stroke="#F8F9FA" StrokeThickness="1.8" Fill="Transparent"/>
+            </Canvas></Viewbox>
+          </Button>
+          <Ellipse x:Name="CodexUnreadDot" Width="9" Height="9" Fill="#FF4B55" Stroke="#000000"
+                   StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top"
+                   Margin="43,13,0,0" Visibility="Collapsed" IsHitTestVisible="False"/>
+        </Grid>
+        <Button x:Name="ActivityButton" Style="{StaticResource RailButton}" Click="Activity_Click"
+                ToolTip="Laptop activity" AutomationProperties.Name="Laptop activity">
+          <Viewbox Width="25" Height="25"><Canvas Width="24" Height="24">
+            <Path Data="M2 12 H6 L9 5 L13 19 L16 10 L18 12 H22"
+                  Stroke="#F8F9FA" StrokeThickness="1.8" StrokeLineJoin="Miter" Fill="Transparent"/>
+          </Canvas></Viewbox>
+        </Button>
+        <Button x:Name="ArchiveButton" Style="{StaticResource RailButton}" Click="Archive_Click"
+                ToolTip="Archive" AutomationProperties.Name="Archive">
+          <Viewbox Width="25" Height="25"><Canvas Width="24" Height="24">
+            <Path Data="M4 4 H20 V8 H4 Z M6 8 V20 H18 V8 M9 12 H15"
+                  Stroke="#F8F9FA" StrokeThickness="1.8" StrokeLineJoin="Miter" Fill="Transparent"/>
+          </Canvas></Viewbox>
+        </Button>
+        <Button x:Name="VmButton" Style="{StaticResource RailButton}" Click="Vm_Click"
+                ToolTip="VM status" AutomationProperties.Name="VM status">
+          <Viewbox Width="25" Height="25"><Canvas Width="24" Height="24">
+            <Path Data="M4 4 H20 V11 H4 Z M4 13 H20 V20 H4 Z"
+                  Stroke="#F8F9FA" StrokeThickness="1.8" Fill="Transparent"/>
+            <Path Data="M7 7.5 H9 M7 16.5 H9 M14 7.5 H17 M14 16.5 H17"
+                  Stroke="#F8F9FA" StrokeThickness="1.6"/>
+          </Canvas></Viewbox>
+        </Button>
+        <Button x:Name="GmailButton" Style="{StaticResource RailButton}" Click="Gmail_Click"
+                ToolTip="Gmail" AutomationProperties.Name="Gmail">
+          <Viewbox Width="25" Height="25"><Canvas Width="24" Height="24">
+            <Path Data="M3 6.5 L6.5 9.2 V18.5 H3 Z" Fill="#ADB5BD"/>
+            <Path Data="M3 6.5 L5.2 5 L12 10.3 V14.8 Z" Fill="#F8F9FA"/>
+            <Path Data="M12 10.3 L18.8 5 L21 6.5 L12 14.8 Z" Fill="#DEE2E6"/>
+            <Path Data="M17.5 9.2 L21 6.5 V18.5 H17.5 Z" Fill="#6C757D"/>
+          </Canvas></Viewbox>
+        </Button>
+        <Grid Width="64" Height="58">
+          <Button x:Name="ApprovalButton" Style="{StaticResource RailButton}" Click="Approval_Click"
+                  ToolTip="Approvals" AutomationProperties.Name="Approvals">
+            <Viewbox Width="25" Height="25"><Canvas Width="24" Height="24">
+              <Path Data="M4.5 12.5 L9.5 17.5 L19.5 6.5" Stroke="#F8F9FA" StrokeThickness="2.2"
+                    StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="Transparent"/>
+            </Canvas></Viewbox>
+          </Button>
+          <Ellipse x:Name="ApprovalUnreadDot" Width="9" Height="9" Fill="#FF4B55" Stroke="#000000" StrokeThickness="1"
+                   HorizontalAlignment="Left" VerticalAlignment="Top" Margin="43,13,0,0" Visibility="Collapsed" IsHitTestVisible="False"/>
+        </Grid>
+      </StackPanel>
+      <StackPanel Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,13">
+        <Ellipse x:Name="ConnectionDot" Width="7" Height="7" Fill="#F0B85A"
+                 HorizontalAlignment="Center" Margin="0,0,0,8" ToolTip="Checking connection"/>
+        <Button x:Name="HideButton" Style="{StaticResource RailButton}" Width="46" Height="38"
+                Click="Hide_Click" ToolTip="Hide overlay"
+                AutomationProperties.Name="Hide overlay">
+          <Viewbox Width="20" Height="20"><Canvas Width="24" Height="24">
+            <Path Data="M5 12 H19" Stroke="#F8F9FA" StrokeThickness="1.8"/>
+          </Canvas></Viewbox>
+        </Button>
+        <TextBlock x:Name="ConnectionText" Visibility="Collapsed"/>
+        <TextBlock x:Name="ConnectionDetail" Visibility="Collapsed"/>
+      </StackPanel>
+    </Grid>
+    </Grid>
+    <Rectangle Margin="1" RadiusX="40" RadiusY="40"
+               Stroke="#6C757D" StrokeThickness="1" StrokeDashArray="1 3"
+               Fill="Transparent" IsHitTestVisible="False"/>
+  </Grid>
+</Window>

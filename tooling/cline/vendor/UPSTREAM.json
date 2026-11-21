@@ -1,0 +1,79 @@
+{
+  "repository": "https://github.com/cline/cline",
+  "commit": "40c5d99031fe1128189c5b52e40638d2b7787754",
+  "files": [
+    {
+      "path": "sdk/packages/core/src/extensions/tools/definitions.ts",
+      "sha256": "8214438eb85755ee40abf6e37652552728195288c770618ed10f6f3937ef519d"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/types.ts",
+      "sha256": "40c738ac385ac33f3fe02d3bc3500ad462dd6eecd0f3f51fce905a3bf8b2e5f0"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/schemas.ts",
+      "sha256": "de11ee59ba9c32c028bed3e7c9b31424b1db863182533108d5628eaec8e3e0ab"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/helpers.ts",
+      "sha256": "c838456152d957c98f20033a1deba75dbed880bdeb3ba1257876687dba029ca7"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/file-read.ts",
+      "sha256": "7a09e06d46a4bed94138997b2100ff2cc8b1a3a18495648bc35d6fe20d7a7c12"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/search.ts",
+      "sha256": "1dedd47b81fc0ef2a689a8cc7c635b76fe4ddd8b3320b187b2ebf1ed8acb165f"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/bash.ts",
+      "sha256": "0088b2c57e8ff68260c45fe261fa32cee2f5cef82d393bc9517e2f7312f4bc60"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/apply-patch.ts",
+      "sha256": "8dee7eedb1731f55bae8ba66c6baf57e6aae48bcd2a948ea5d5532ae12a96a52"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/apply-patch-parser.ts",
+      "sha256": "315cabe8b6041a39fafb22bf3d69c4fa6b0ac52a49d63b09f9543cf0833a24e8"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/editor.ts",
+      "sha256": "8c787421b28c5abe9cfbcd66a1d8135cd02766ba32c6900bc3327ff240f95986"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/line-endings.ts",
+      "sha256": "ca4d138602bae6b90c5bb3abeee2a26806275dff2e13213105f3dc3f7cd0ee21"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/output-limits.ts",
+      "sha256": "e41f9f909564f3a39e1e582b3edeb110bf94dde2939d1d2628932eb3a16363ec"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/run-command-execution-controller.ts",
+      "sha256": "0bd2acdd4402162b5e2a64f55ef180bb87cc5f9730853d6c0ea4465cbf055b47"
+    },
+    {
+      "path": "sdk/packages/core/src/extensions/tools/executors/web-fetch.ts",
+      "sha256": "df6c8145c3412f21dc9076462ea3f249f72bfa6c3e9f3ac781a9cd8b2741a5da"
+    },
+    {
+      "path": "sdk/packages/shared/src/tools/create.ts",
+      "sha256": "eecf31afe5623aa73a6339df5e35ad93a3b6313037828ece551a054d0336d4ad"
+    },
+    {
+      "path": "sdk/packages/shared/src/parse/zod.ts",
+      "sha256": "081a41a463ae8e9c3bd2e525c5ab638428ba8c39375aba0a3264ff148ad6b800"
+    },
+    {
+      "path": "sdk/packages/shared/src/parse/shell.ts",
+      "sha256": "103b47b7d536d38c1c36bf0a903b78ddb6f90e78a367a305b4104e34eabbc31f"
+    },
+    {
+      "path": "sdk/packages/core/src/runtime/process-start-token.ts",
+      "sha256": "747269ca791e50082b0c4747b2a885e5cb32c92d1a923fae8d65e4225fad169b"
+    }
+  ],
+  "modifications": "None in vendor; host imports redirected at bundle build time."
+}

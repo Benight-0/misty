@@ -1,0 +1,22 @@
+{
+  "source": "C:\\Users\\Public\\Downloads\\prominence-chan",
+  "commit": "2444dd36da25a1537aec98a4b817bfcea689fda9",
+  "files": {
+    ".gitignore": "48adb2eb8beaec1cdd39c322bc9988c15edea13ee09bfd59d90819ca868de9e9",
+    "LICENSE": "8d5f46788d17b8e2ea37f376f33d4161b33444fb0c740fa528414514cef07b31",
+    "README.md": "5819ed253b007b4c20c70fa1c46b9c741547f989fba7bb3c1499ff22152c181e",
+    "bot.py": "5ec562ee2bde4a5ea554b2988b23a6ad5055e307d35cca0f2e0ee4ffcf60c290",
+    "config.example.json": "c4a6ff6abf555da7208f0f75a491d64bb01d463a6f8e95468deb9e7b1295d670",
+    "config.py": "196c4c2d654ad63605e2db7ba6c04a40bdc547141fc6a802a76467f60c062e41",
+    "context.py": "bd85af84fcbbc59ea4d63e13a952a13e094d195effdfb2f8c0d33d002d0f7cda",
+    "discord_react.py": "2f59a5f8dd108b8c8553b5f6a33fcea9573ce002168267b87596ac4a54211d86",
+    "discord_read.py": "efddb1177283d41c7647bc754ef49894de77ed3c2f6ddc68af694f664d38e6f4",
+    "dm.py": "18209cb9a1839eaca164a689bf81186423fd39d05dbc961ac519d05612a22d73",
+    "mod.py": "f4a94ba951efba502b6249351d5f529e0f3dd9424b7e4671f561d5645405e99e",
+    "requirements.txt": "865e75707c54a5877676b5b918cfd115f8fe467c8a25373b1cad00dbb5266511",
+    "selfupdate.py": "32f6434a0db0d84bea9684bb3f05bd4f4095f07ae7be0a223263108296718d5e",
+    "supervise.py": "a6bf0819c1a5a064f6736735db3b486dc3f5bd6498404ff5ac45ebe4db18d1ed",
+    "tools/mouse.py": "5e90b6aaceda2702dacc4c376a5e0d3010155cc54c7b442b65e4e79762ee2f86",
+    "workflows.py": "a54e8e24cf7381e7f53b5d6e1ee2927bed5232bee7efc4b5c4e7164a860dedf3"
+  }
+}
